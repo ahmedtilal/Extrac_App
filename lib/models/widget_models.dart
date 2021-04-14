@@ -39,3 +39,5 @@ class InputField extends StatelessWidget {
     );
   }
 }
+
+//Navigation bar at the bottom of the page.
