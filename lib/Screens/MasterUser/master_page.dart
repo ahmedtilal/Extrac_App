@@ -1,9 +1,12 @@
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
+import 'package:extrac_app/Screens/MasterUser/adding_page.dart';
+import 'package:extrac_app/Screens/MasterUser/stats_page.dart';
 import 'package:extrac_app/constants/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'requests_page.dart';
+import 'transactions_page.dart';
 
 class Master extends StatefulWidget {
   @override
@@ -11,7 +14,7 @@ class Master extends StatefulWidget {
 }
 
 class _MasterState extends State<Master> {
-  int pageIndex;
+  int pageIndex = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,10 +39,12 @@ class _MasterState extends State<Master> {
     List<IconData> iconItems = [
       FontAwesomeIcons.calendar,
       FontAwesomeIcons.chartBar,
-      Icons.settings,
-      FontAwesomeIcons.user
+      Icons.compare_arrows,
+      FontAwesomeIcons.users
     ];
     return AnimatedBottomNavigationBar(
+      splashColor: Colors.white,
+      backgroundColor: Colors.white,
       icons: iconItems,
       activeIndex: pageIndex,
       onTap: (index) {
@@ -66,18 +71,12 @@ class _MasterState extends State<Master> {
       index: pageIndex,
       children: [
         RequestsPage(),
+        Stats(),
+        Transactions(),
         Center(
-          child: Text('Stats Page'),
+          child: Text('Users Page'),
         ),
-        Center(
-          child: Text('Settings Page'),
-        ),
-        Center(
-          child: Text('Profile Page'),
-        ),
-        Center(
-          child: Text('Add Expense Page'),
-        ),
+        AddExpense(),
       ],
     );
   }

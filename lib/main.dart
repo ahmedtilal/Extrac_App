@@ -13,6 +13,7 @@ class MyApp extends StatelessWidget {
       title: 'Extrac',
       theme: ThemeData(
         primarySwatch: Colors.cyan,
+        fontFamily: 'Poppins',
       ),
       home: Master(),
     );

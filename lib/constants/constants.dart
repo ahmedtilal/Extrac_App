@@ -1,14 +1,24 @@
+import 'package:extrac_app/models/pieChartView.dart';
 import 'package:flutter/material.dart';
 
 const Color kMainColor = Color(0xff4f3d9b);
 const Color kGradientStartColor = Color(0x80b7cfe8);
-const Color kGradientEndColor = Color(0xffB7CFE8);
+const Color kGradientEndColor = Color(0xFFC1D6E9);
+const Color kSecondaryColor = Color.fromRGBO(193, 214, 233, 1);
+const Color kNeumorphicColor = Color(0xFF92B6D8);
 
 const TextStyle kLabelStyle = TextStyle(
     fontFamily: 'Poppins',
     fontSize: 16.0,
     fontWeight: FontWeight.w500,
     color: Color(0xff3f72af));
+
+const TextStyle kInfoStyle = TextStyle(
+  fontFamily: 'Poppins',
+  fontSize: 14.0,
+  fontWeight: FontWeight.w300,
+  color: Colors.black,
+);
 
 final ButtonStyle kButtonStyle = ElevatedButton.styleFrom(
   onPrimary: Colors.white,
@@ -31,6 +41,10 @@ final ButtonStyle kAltButtonStyle = ElevatedButton.styleFrom(
   ),
   elevation: 10.0,
 );
+final ButtonStyle kApproveButtonStyle = ElevatedButton.styleFrom(
+  onPrimary: kSecondaryColor,
+  primary: kSecondaryColor,
+);
 
 const TextStyle kAltButtonTextStyle = TextStyle(
   color: Colors.black,
@@ -43,3 +57,45 @@ const TextStyle kButtonTextStyle = TextStyle(
   fontSize: 24,
   letterSpacing: 1.5,
 );
+
+const TextStyle kInfoStyleM =
+    TextStyle(color: Colors.black, fontSize: 12, fontFamily: 'Poppins');
+
+const TextStyle kAmountStyle = TextStyle(
+    fontFamily: 'Poppins',
+    fontSize: 24,
+    fontWeight: FontWeight.w800,
+    color: Colors.black);
+
+const TextStyle kAmountStyleXL = TextStyle(
+    fontFamily: 'Poppins',
+    fontSize: 48,
+    fontWeight: FontWeight.w800,
+    color: Colors.white);
+
+const TextStyle kLabelStyleL = TextStyle(
+    fontFamily: 'Poppins',
+    fontSize: 18.0,
+    fontWeight: FontWeight.w700,
+    color: kMainColor);
+
+final List<Category> kCategoriesList = [
+  Category('Groceries', amount: 500.0),
+  Category('Medicines', amount: 250.0),
+  Category('Education', amount: 400.0),
+  Category('Fuel', amount: 100.0),
+  Category('Bills', amount: 150.0),
+  Category('Stationery', amount: 350.0),
+];
+
+final kCategoriesColors = [
+  Colors.blue,
+  Colors.red,
+  Colors.yellow,
+  Colors.green,
+  Colors.deepPurple,
+  Colors.white,
+  Colors.deepOrange
+];
+
+final kUsersList = ['Tahir', 'Ahmed', 'Mansour', 'Zuhair', 'Abdo', 'Aminko'];
