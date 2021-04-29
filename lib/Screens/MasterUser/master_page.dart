@@ -1,6 +1,7 @@
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:extrac_app/Screens/MasterUser/adding_page.dart';
 import 'package:extrac_app/Screens/MasterUser/stats_page.dart';
+import 'package:extrac_app/Screens/MasterUser/users_page.dart';
 import 'package:extrac_app/constants/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -73,9 +74,7 @@ class _MasterState extends State<Master> {
         RequestsPage(),
         Stats(),
         Transactions(),
-        Center(
-          child: Text('Users Page'),
-        ),
+        UsersPage(),
         AddExpense(),
       ],
     );

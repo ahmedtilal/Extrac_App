@@ -20,7 +20,7 @@ class Stats extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                'Monthly Expenditure',
+                'Total Expenditure This Month',
                 style: kLabelStyle.copyWith(color: Colors.white),
               ),
               SizedBox(
