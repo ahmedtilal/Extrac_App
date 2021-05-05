@@ -1,8 +1,6 @@
-import 'package:extrac_app/Services/authentication.dart';
+import 'package:extrac_app/Services/querying.dart';
 import 'package:extrac_app/constants/constants.dart';
-import 'package:extrac_app/models/widget_models.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class Transactions extends StatelessWidget {
   @override
@@ -28,7 +26,14 @@ class Transactions extends StatelessWidget {
               Text(
                 '67,820 SDG',
                 style: kAmountStyleXL,
-              )
+              ),
+              SizedBox(
+                height: 20.0,
+              ),
+              Text(
+                'Transactions',
+                style: TextStyle(color: Colors.white),
+              ),
             ],
           ),
         ),
@@ -45,42 +50,7 @@ class Transactions extends StatelessWidget {
                 topRight: Radius.circular(30),
               ),
             ),
-            child: Column(
-              children: [
-                Text(
-                  'Transactions',
-                  style: kLabelStyle.copyWith(color: Colors.black),
-                ),
-                SizedBox(
-                  height: 15,
-                ),
-                //TODO provide this TransactionDisplay using a ListviewBuilder with dividers.
-                TransactionDisplay(
-                  width: width,
-                  user: 'Tahir',
-                  date: '21/04',
-                  time: '15:30',
-                  amount: 3700,
-                ),
-                Divider(
-                  color: Colors.black,
-                  indent: width * 0.05,
-                  endIndent: width * 0.05,
-                  thickness: 0.6,
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    context.read<AuthenticationService>().signOut();
-                  },
-                  child: Text(
-                    'LOGOUT',
-                    style: kButtonTextStyle,
-                  ),
-                  style: kButtonStyle,
-                ),
-                //TODO Change later as this is only for testing purposes.
-              ],
-            ),
+            child: PreviousTransactions(),
           ),
         ),
       ],
