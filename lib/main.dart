@@ -1,6 +1,11 @@
 import 'package:extrac_app/Screens/MasterUser/master_page.dart';
+import 'package:extrac_app/Screens/login_screen.dart';
+import 'package:extrac_app/Screens/signUp_page.dart';
+import 'package:extrac_app/Services/authentication.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +40,7 @@ class _AppState extends State<App> {
   @override
   void initState() {
     initializeFlutterFire();
+    print('Initialised');
     super.initState();
   }
 
@@ -50,13 +56,40 @@ class _AppState extends State<App> {
       return CircularProgressIndicator();
     }
 
-    return MaterialApp(
-      title: 'Extrac',
-      theme: ThemeData(
-        primarySwatch: Colors.cyan,
-        fontFamily: 'Poppins',
+    return MultiProvider(
+      providers: [
+        ListenableProvider(
+          create: (context) => AuthenticationService(FirebaseAuth.instance),
+        ),
+        StreamProvider(
+          create: (context) =>
+              context.read<AuthenticationService>().authStateChanges,
+          initialData: null,
+        ),
+      ],
+      child: MaterialApp(
+        title: 'Extrac',
+        theme: ThemeData(
+          primarySwatch: Colors.cyan,
+          fontFamily: 'Poppins',
+        ),
+        home: AuthenticationWrapper(),
+        routes: {
+          'signUp': (context) => SignUp(),
+          'Master': (context) => Master(),
+        },
       ),
-      home: Master(),
     );
+  }
+}
+
+class AuthenticationWrapper extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final firebaseUser = Provider.of<User>(context);
+    if (firebaseUser == null) {
+      return LogIn();
+    }
+    return Master();
   }
 }

@@ -1,6 +1,8 @@
+import 'package:extrac_app/Services/authentication.dart';
 import 'package:extrac_app/constants/constants.dart';
 import 'package:extrac_app/models/widget_models.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Transactions extends StatelessWidget {
   @override
@@ -66,6 +68,17 @@ class Transactions extends StatelessWidget {
                   endIndent: width * 0.05,
                   thickness: 0.6,
                 ),
+                ElevatedButton(
+                  onPressed: () {
+                    context.read<AuthenticationService>().signOut();
+                  },
+                  child: Text(
+                    'LOGOUT',
+                    style: kButtonTextStyle,
+                  ),
+                  style: kButtonStyle,
+                ),
+                //TODO Change later as this is only for testing purposes.
               ],
             ),
           ),

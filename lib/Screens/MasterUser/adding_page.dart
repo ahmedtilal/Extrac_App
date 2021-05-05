@@ -1,3 +1,5 @@
+import 'package:extrac_app/Screens/MasterUser/master_page.dart';
+import 'package:extrac_app/Services/firestore_write.dart';
 import 'package:extrac_app/constants/constants.dart';
 import 'package:extrac_app/models/widget_models.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,6 +13,9 @@ class AddExpense extends StatefulWidget {
 class _AddExpenseState extends State<AddExpense> {
   @override
   Widget build(BuildContext context) {
+    TextEditingController amountController = TextEditingController();
+    int amount;
+    TextEditingController descriptionController = TextEditingController();
     String categoriesDropDownValue;
     String usersDropDownValue;
     final height = MediaQuery.of(context).size.height;
@@ -34,6 +39,7 @@ class _AddExpenseState extends State<AddExpense> {
                 ),
                 InputField(
                   child: TextField(
+                    controller: descriptionController,
                     decoration: InputDecoration(
                         border: InputBorder.none, hintText: 'Description'),
                   ),
@@ -43,6 +49,8 @@ class _AddExpenseState extends State<AddExpense> {
                 ),
                 InputField(
                   child: TextField(
+                    controller: amountController,
+                    keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                         border: InputBorder.none, hintText: 'Amount'),
                   ),
@@ -57,7 +65,6 @@ class _AddExpenseState extends State<AddExpense> {
                       setState(() {
                         categoriesDropDownValue = newValue;
                       });
-                      print(newValue);
                     },
                     items: getCategoryItems(),
                     hintText: 'Category',
@@ -83,14 +90,25 @@ class _AddExpenseState extends State<AddExpense> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    print('Add button pressed');
+                    AddTransaction(
+                            category: categoriesDropDownValue,
+                            user: usersDropDownValue,
+                            description: descriptionController.text,
+                            amount: int.parse(amountController.text))
+                        .addTransaction();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Master(),
+                      ),
+                    );
                   },
                   child: Text(
                     'ADD',
                     style: kButtonTextStyle,
                   ),
                   style: kButtonStyle,
-                )
+                ),
               ],
             ),
           ),

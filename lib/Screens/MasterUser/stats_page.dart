@@ -1,5 +1,5 @@
+import 'package:extrac_app/Services/querying.dart';
 import 'package:extrac_app/constants/constants.dart';
-import 'package:extrac_app/models/widget_models.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -26,10 +26,7 @@ class Stats extends StatelessWidget {
               SizedBox(
                 height: 20,
               ),
-              Text(
-                '124,564 SDG',
-                style: kAmountStyleXL,
-              ),
+              TotalMonthlyExpenditure(),
             ],
           ),
         ),
@@ -53,27 +50,15 @@ class Stats extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      DisplayBoxCard(
-                        label: 'Medicine',
-                        amount: 32540,
-                      ),
-                      DisplayBoxCard(
-                        label: 'Bills',
-                        amount: 17850,
-                      ),
+                      CategoryQuery(inCategory: 'Medicines'),
+                      CategoryQuery(inCategory: 'Bills')
                     ],
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      DisplayBoxCard(
-                        label: 'Education',
-                        amount: 25400,
-                      ),
-                      DisplayBoxCard(
-                        label: 'Groceries',
-                        amount: 28500,
-                      ),
+                      CategoryQuery(inCategory: 'Education'),
+                      CategoryQuery(inCategory: 'Groceries'),
                     ],
                   ),
                 ],
