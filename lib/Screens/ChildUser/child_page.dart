@@ -1,36 +1,26 @@
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:extrac_app/Screens/adding_page.dart';
 import 'package:extrac_app/Screens/stats_page.dart';
+import 'package:extrac_app/Screens/transactions_page.dart';
 import 'package:extrac_app/Screens/users_page.dart';
 import 'package:extrac_app/constants/constants.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../transactions_page.dart';
-import 'requests_page.dart';
+class Child extends StatefulWidget {
+  const Child({Key key}) : super(key: key);
 
-class Master extends StatefulWidget {
   @override
-  _MasterState createState() => _MasterState();
+  _ChildState createState() => _ChildState();
 }
 
-class _MasterState extends State<Master> {
+class _ChildState extends State<Child> {
   int pageIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: kMainColor,
-        child: Icon(
-          Icons.add,
-          color: Colors.white,
-          size: 25,
-        ),
-        onPressed: () {
-          setTabs(4);
-        },
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: bottomBar(pageIndex),
       body: getBody(),
     );
@@ -38,26 +28,25 @@ class _MasterState extends State<Master> {
 
   AnimatedBottomNavigationBar bottomBar(index) {
     List<IconData> iconItems = [
-      FontAwesomeIcons.calendar,
       FontAwesomeIcons.chartBar,
-      Icons.compare_arrows,
-      FontAwesomeIcons.users
+      Icons.add,
+      Icons.history,
+      FontAwesomeIcons.user
     ];
+
     return AnimatedBottomNavigationBar(
+      gapLocation: GapLocation.none,
       splashColor: Colors.white,
-      backgroundColor: Colors.white,
       icons: iconItems,
+      leftCornerRadius: 30,
+      rightCornerRadius: 30,
       activeIndex: pageIndex,
       onTap: (index) {
         setTabs(index);
       },
       activeColor: kMainColor,
       inactiveColor: Colors.grey,
-      gapLocation: GapLocation.center,
-      notchSmoothness: NotchSmoothness.softEdge,
-      leftCornerRadius: 10,
       iconSize: 25,
-      rightCornerRadius: 10,
     );
   }
 
@@ -77,12 +66,25 @@ class _MasterState extends State<Master> {
     return IndexedStack(
       index: pageIndex,
       children: [
-        RequestsPage(),
         StatsPage(),
+        AddExpensePage(),
         TransactionsPage(),
         UsersPage(),
-        AddExpensePage(),
       ],
     );
   }
 }
+
+//Container(
+//         width: MediaQuery.of(context).size.width,
+//         height: MediaQuery.of(context).size.height,
+//         color: Colors.amberAccent,
+//         child: Center(
+//           child: ElevatedButton(
+//             onPressed: () {
+//               CurrentUserInfo().currentUser();
+//             },
+//             child: Text('Test'),
+//           ),
+//         ),
+//       ),

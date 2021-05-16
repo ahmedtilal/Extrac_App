@@ -1,23 +1,26 @@
-import 'package:extrac_app/Screens/MasterUser/master_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:extrac_app/Services/firestore_write.dart';
 import 'package:extrac_app/constants/constants.dart';
 import 'package:extrac_app/models/widget_models.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class AddExpense extends StatefulWidget {
+class AddExpensePage extends StatefulWidget {
   @override
-  _AddExpenseState createState() => _AddExpenseState();
+  _AddExpensePageState createState() => _AddExpensePageState();
 }
 
-class _AddExpenseState extends State<AddExpense> {
+class _AddExpensePageState extends State<AddExpensePage> {
   @override
   Widget build(BuildContext context) {
+    var userDoc = Provider.of<DocumentSnapshot>(context);
+    String user = userDoc.data()["name"];
+    bool isMaster = userDoc.data()["isMaster"];
     TextEditingController amountController = TextEditingController();
-    int amount;
     TextEditingController descriptionController = TextEditingController();
     String categoriesDropDownValue;
-    String usersDropDownValue;
+
     final height = MediaQuery.of(context).size.height;
     return Stack(
       children: [
@@ -73,35 +76,19 @@ class _AddExpenseState extends State<AddExpense> {
                 SizedBox(
                   height: height * 0.02,
                 ),
-                StatefulBuilder(builder: (context, setState) {
-                  return DropDownBox(
-                    hintText: 'User',
-                    dropDownValue: usersDropDownValue,
-                    items: getUserItems(),
-                    onChanged: (newValue) {
-                      setState(() {
-                        usersDropDownValue = newValue;
-                      });
-                    },
-                  );
-                }),
                 SizedBox(
                   height: height * 0.04,
                 ),
                 ElevatedButton(
-                  onPressed: () {
-                    AddTransaction(
-                            category: categoriesDropDownValue,
-                            user: usersDropDownValue,
-                            description: descriptionController.text,
-                            amount: int.parse(amountController.text))
-                        .addTransaction();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => Master(),
-                      ),
-                    );
+                  onPressed: () async {
+                    await AddTransaction(
+                      category: categoriesDropDownValue,
+                      user: user,
+                      description: descriptionController.text,
+                      amount: int.parse(amountController.text),
+                      isApproved: isMaster,
+                    ).addTransaction();
+                    Navigator.pushNamed(context, 'home');
                   },
                   child: Text(
                     'ADD',

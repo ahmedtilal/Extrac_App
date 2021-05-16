@@ -1,10 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:extrac_app/Services/querying.dart';
 import 'package:extrac_app/constants/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class Transactions extends StatelessWidget {
+class TransactionsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var userDoc = Provider.of<DocumentSnapshot>(context);
+    String user = userDoc.data()["name"];
+    bool isMaster = userDoc.data()["isMaster"];
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     return Stack(
@@ -17,16 +22,17 @@ class Transactions extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                'Household Expenditure',
+                'Monthly Expenditure',
                 style: kLabelStyle.copyWith(color: Colors.white),
               ),
               SizedBox(
                 height: 20,
               ),
-              Text(
-                '67,820 SDG',
-                style: kAmountStyleXL,
-              ),
+              isMaster
+                  ? TotalMonthlyExpenses(
+                      style: kAmountStyleXL,
+                    )
+                  : TotalMonthlyExpensesPerUser(user: user),
               SizedBox(
                 height: 20.0,
               ),
@@ -39,7 +45,7 @@ class Transactions extends StatelessWidget {
         ),
         Positioned(
           bottom: 0,
-          height: height * 0.65,
+          height: height * 0.62,
           width: width * 1,
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
@@ -50,7 +56,11 @@ class Transactions extends StatelessWidget {
                 topRight: Radius.circular(30),
               ),
             ),
-            child: PreviousTransactions(),
+            child: isMaster
+                ? AllTransactions()
+                : TransactionsPerUser(
+                    user: user,
+                  ),
           ),
         ),
       ],

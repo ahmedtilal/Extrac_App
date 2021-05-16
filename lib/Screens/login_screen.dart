@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:extrac_app/Services/authentication.dart';
 import 'package:extrac_app/constants/constants.dart';
 import 'package:flutter/cupertino.dart';
@@ -100,10 +101,11 @@ class LogIn extends StatelessWidget {
                     ],
                   ),
                   ElevatedButton(
-                    onPressed: () {
-                      context.read<AuthenticationService>().signIn(
+                    onPressed: () async {
+                      await context.read<AuthenticationService>().signIn(
                           email: emailController.text,
                           password: passwordController.text);
+                      context.read<DocumentSnapshot>();
                     },
                     style: kButtonStyle,
                     child: Text('LOGIN', style: kButtonTextStyle),

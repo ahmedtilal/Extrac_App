@@ -1,5 +1,7 @@
+import 'package:extrac_app/Services/authentication.dart';
 import 'package:extrac_app/constants/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class UsersPage extends StatelessWidget {
   @override
@@ -70,6 +72,17 @@ class UsersPage extends StatelessWidget {
                       ],
                     ),
                   ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Provider.of<AuthenticationService>(context, listen: false)
+                        .signOut();
+                  },
+                  child: Text(
+                    'SIGN OUT',
+                    style: kButtonTextStyle,
+                  ),
+                  style: kButtonStyle,
                 ),
               ],
             ),

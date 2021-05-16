@@ -1,3 +1,4 @@
+import 'package:extrac_app/Services/querying.dart';
 import 'package:extrac_app/constants/constants.dart';
 import 'package:extrac_app/models/pieChartView.dart';
 import 'package:extrac_app/models/widget_models.dart';
@@ -75,14 +76,7 @@ class RequestsPage extends StatelessWidget {
                   height: 15,
                 ),
                 //TODO provide those requests cards using a ListViewBuilder and inject data from backend.
-                RequestCard(
-                  user: 'Tahir',
-                  description: 'Requesting money for uni to last him 7 days.',
-                  date: '18/04/2021',
-                  time: '19:40',
-                  category: 'Education',
-                  amount: 5700,
-                ),
+                Expanded(child: RequestedTransactions()),
               ],
             ),
           ),

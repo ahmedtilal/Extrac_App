@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:extrac_app/Services/querying.dart';
 import 'package:extrac_app/constants/constants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +24,7 @@ class TextFieldLabel extends StatelessWidget {
   }
 }
 
-//Textfield wrappers that give it the white look.
+//TextField wrappers that give it the white look.
 class InputField extends StatelessWidget {
   final Widget child;
   InputField({this.child});
@@ -46,17 +47,17 @@ class InputField extends StatelessWidget {
 class RequestCard extends StatelessWidget {
   RequestCard(
       {this.user,
+      this.onPressed,
       this.category,
       this.date,
       this.description,
-      this.time,
       this.amount});
   final String category;
   final String user;
   final String description;
   final String date;
-  final String time;
   final int amount;
+  final Function onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -111,13 +112,13 @@ class RequestCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      '$date \n at $time',
+                      '$date',
                       style: kInfoStyleM,
                     ),
                     ElevatedButton(
                       style: kApproveButtonStyle,
                       onPressed: () {
-                        print('Button pressed.');
+                        onPressed();
                       },
                       child: Text(
                         'Approve',
@@ -203,13 +204,12 @@ List<CategoryRow> getCatList() {
 }
 
 //Function that adds amounts of all categories to come up with the grand total shown in the centre of the pie chart.
-List<Text> getAmounts() {
-  List<Text> amountsList = [];
+List<SumPerCategoryText> getAmounts() {
+  List<SumPerCategoryText> amountsList = [];
   for (var i = 0; i < kCategoriesList.length; i++) {
     amountsList.add(
-      Text(
-        kCategoriesList[i].amount.toInt().toString(),
-        style: kInfoStyle,
+      SumPerCategoryText(
+        category: kCategoriesList[i].name,
       ),
     );
   }

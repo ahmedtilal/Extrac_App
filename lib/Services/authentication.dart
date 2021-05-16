@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 
 class AuthenticationService extends ChangeNotifier {
   final FirebaseAuth _firebaseAuth;
-
   AuthenticationService(this._firebaseAuth);
   bool connecting = false;
   Stream<User> get authStateChanges => _firebaseAuth.authStateChanges();
@@ -34,6 +33,7 @@ class AuthenticationService extends ChangeNotifier {
           email: email, password: password);
       connecting = false;
       notifyListeners();
+      print('User Signed in');
       return "User signed up successfully.";
     } on FirebaseAuthException catch (e) {
       return e.message;

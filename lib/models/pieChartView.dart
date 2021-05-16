@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:extrac_app/Services/querying.dart';
 import 'package:extrac_app/constants/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
@@ -63,8 +64,7 @@ class PieChartView extends StatelessWidget {
                         ),
                       ]),
                   child: Center(
-                    child: Text(
-                      '${total.toInt()}SDG',
+                    child: TotalMonthlyExpenses(
                       style: kLabelStyle,
                     ),
                   ),

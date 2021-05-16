@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:extrac_app/Screens/ChildUser/child_page.dart';
 import 'package:extrac_app/Screens/MasterUser/master_page.dart';
 import 'package:extrac_app/Screens/login_screen.dart';
 import 'package:extrac_app/Screens/signUp_page.dart';
@@ -61,11 +63,15 @@ class _AppState extends State<App> {
         ListenableProvider(
           create: (context) => AuthenticationService(FirebaseAuth.instance),
         ),
-        StreamProvider(
+        StreamProvider<User>(
           create: (context) =>
               context.read<AuthenticationService>().authStateChanges,
           initialData: null,
         ),
+        // StreamProvider<DocumentSnapshot>(
+        //     create: (_) =>
+        //         UserWrapper(FirebaseAuth.instance.currentUser).currentUser,
+        //     initialData: null),
       ],
       child: MaterialApp(
         title: 'Extrac',
@@ -75,6 +81,7 @@ class _AppState extends State<App> {
         ),
         home: AuthenticationWrapper(),
         routes: {
+          'home': (context) => AuthenticationWrapper(),
           'signUp': (context) => SignUp(),
           'Master': (context) => Master(),
         },
@@ -83,13 +90,59 @@ class _AppState extends State<App> {
   }
 }
 
-class AuthenticationWrapper extends StatelessWidget {
+class AuthenticationWrapper extends StatefulWidget {
+  @override
+  _AuthenticationWrapperState createState() => _AuthenticationWrapperState();
+}
+
+class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
   @override
   Widget build(BuildContext context) {
     final firebaseUser = Provider.of<User>(context);
     if (firebaseUser == null) {
       return LogIn();
     }
-    return Master();
+    return StreamProvider<DocumentSnapshot>(
+        create: (context) => UserWrapper(firebaseUser).currentUser,
+        initialData: null,
+        child: UserWrapper(firebaseUser));
+  }
+}
+
+//Checks the type of user whether isMaster or not and returns a corresponding type of page.
+class UserWrapper extends StatelessWidget {
+  final User user;
+  UserWrapper(this.user);
+  Stream<DocumentSnapshot> get currentUser {
+    String userId;
+    if (user != null) {
+      userId = user.uid;
+    }
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .snapshots();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+        future:
+            FirebaseFirestore.instance.collection('users').doc(user.uid).get(),
+        builder:
+            (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+          if (snapshot.hasError) {
+            return Text('Something went wrong');
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          var doc = snapshot.data;
+          bool isMaster = doc["isMaster"];
+          return isMaster ? Master() : Child();
+        });
   }
 }

@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:extrac_app/Services/firestore_write.dart';
 import 'package:extrac_app/constants/constants.dart';
 import 'package:extrac_app/models/widget_models.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -9,140 +11,302 @@ int month = DateTime.now().month;
 String year = DateTime.now().year.toString();
 DateTime startDate = DateFormat('MM/yyyy').parse('0$month/$year');
 Timestamp startStamp = Timestamp.fromDate(startDate);
-final fireStore = FirebaseFirestore.instance;
+final _fireStore = FirebaseFirestore.instance;
 
-//This queries our transactions from the database, fetching the transactions done in the current month,
-// according to each category, and providing the sum of them,
-// then displays them in a card widget that was already iterated in the models/widgets file.
-class CategoryQuery extends StatelessWidget {
-  final String inCategory;
-  CategoryQuery({@required this.inCategory});
+//Gets the logged in user's name and whether it's a Master or child user from the database.
+//Also is passed to the App's state through the provider package.
 
-  Future<int> getCatTotal() async {
-    int sum = 0;
-    try {
-      await fireStore
-          .collection('transactions')
-          .where('category', isEqualTo: inCategory)
-          .orderBy('time', descending: true)
-          .where('time', isGreaterThanOrEqualTo: startStamp)
-          .get()
-          .then((QuerySnapshot querySnapshot) {
-        querySnapshot.docs.forEach((doc) {
-          print(doc["amount"]);
-          sum += doc["amount"];
-          print(sum);
-        });
-      });
-    } catch (e) {
-      print(e.toString());
-    }
+class CurrentUserInfo extends ChangeNotifier {
+  var firebaseUser = FirebaseAuth.instance;
+  String userId;
+}
 
-    return sum;
+Stream<QuerySnapshot> getTransactions() {
+  var transactions;
+  try {
+    transactions = _fireStore
+        .collection('transactions')
+        .orderBy('time', descending: true)
+        .where('time', isGreaterThanOrEqualTo: startStamp)
+        .snapshots();
+    print(transactions);
+  } catch (e) {
+    print(e.toString());
   }
+  return transactions;
+}
 
+// A widget that gets all the previous transactions by all the users.
+class AllTransactions extends StatelessWidget {
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: getCatTotal(),
-        builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-          if (!snapshot.hasData) {
-            return CircularProgressIndicator();
+    return StreamBuilder(
+        initialData: "Working....",
+        stream: getTransactions(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasError) {
+            return Text('Something went wrong');
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Text("Loading");
+          }
+          return ListView.builder(
+              itemCount: snapshot.data.docs.length,
+              itemBuilder: (context, index) {
+                var doc = snapshot.data.docs[index];
+                return doc["isApproved"]
+                    ? ListTile(
+                        title: Text(doc["user"]),
+                        subtitle: Text(DateFormat.yMd()
+                            .add_jm()
+                            .format(doc["time"].toDate())
+                            .toString()),
+                        trailing: Text(
+                          doc["amount"].toString(),
+                          style: kAmountStyle,
+                        ),
+                      )
+                    : Material();
+              });
+        });
+  }
+}
+
+class RequestedTransactions extends StatelessWidget {
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+        initialData: "Working....",
+        stream: getTransactions(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasError) {
+            return Text('Something went wrong');
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Text("Loading");
+          }
+          return ListView.builder(
+              itemCount: snapshot.data.docs.length,
+              itemBuilder: (context, index) {
+                var doc = snapshot.data.docs[index];
+                return doc["isApproved"] == false
+                    ? RequestCard(
+                        user: doc["user"],
+                        amount: doc["amount"],
+                        description: doc["description"],
+                        category: doc["category"],
+                        date: DateFormat.yMd()
+                            .add_jm()
+                            .format(doc["time"].toDate())
+                            .toString(),
+                        onPressed: () {
+                          AddTransaction()
+                              .approveTransaction(doc.id.toString());
+                        },
+                      )
+                    : Material();
+              });
+        });
+  }
+}
+
+//Loops through all the transactions returned from the getTransactions stream...
+// ... and provides the sum of the transactions in a specific category in a...
+//... DisplayBoxCard(a view model created in the models/widgets file).
+class SumPerCategory extends StatelessWidget {
+  final String category;
+  SumPerCategory({@required this.category});
+  @override
+  Widget build(BuildContext context) {
+    int sum = 0;
+    return StreamBuilder(
+        initialData: "Working...",
+        stream: getTransactions(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Text('Something went wrong');
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Text("Loading");
+          }
+          for (var doc in snapshot.data.docs) {
+            if (doc["category"] == category && doc["isApproved"] == true) {
+              sum += doc["amount"];
+            }
           }
           return DisplayBoxCard(
-            label: inCategory,
-            amount: snapshot.data,
+            label: category,
+            amount: sum,
+          );
+        });
+  }
+}
+
+//Does the same as the widget above and only difference is returning a text widget instead.
+class SumPerCategoryText extends StatelessWidget {
+  final String category;
+  SumPerCategoryText({@required this.category});
+  @override
+  Widget build(BuildContext context) {
+    int sum = 0;
+    return StreamBuilder(
+        initialData: "Working...",
+        stream: getTransactions(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Text('Something went wrong');
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Text("Loading");
+          }
+          for (var doc in snapshot.data.docs) {
+            if (doc["category"] == category && doc["isApproved"] == true) {
+              sum += doc["amount"];
+            }
+          }
+          return Text(
+            sum.toString(),
+            style: kInfoStyle,
+          );
+        });
+  }
+}
+
+//Gets sum of transactions for a specific category done by a specific user.
+class SumPerCategoryPerUser extends StatelessWidget {
+  final String category;
+  final String user;
+  SumPerCategoryPerUser({@required this.category, @required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    int sum = 0;
+    return StreamBuilder(
+        initialData: "Working...",
+        stream: getTransactions(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Text('Something went wrong');
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Text("Loading");
+          }
+          for (var doc in snapshot.data.docs) {
+            if (doc["category"] == category &&
+                doc["user"] == user &&
+                doc["isApproved"] == true) {
+              sum += doc["amount"];
+            }
+          }
+          return DisplayBoxCard(
+            label: category,
+            amount: sum,
           );
         });
   }
 }
 
 //Returns a a Text widget with the total amount of expenditure for the current month.
-//Querying Firestore for all the transactions that happened this month, and ordering them by timeStamp.
-class TotalMonthlyExpenditure extends StatelessWidget {
-  Future<int> getMonthlyTotal() async {
-    int sum = 0;
-    try {
-      await fireStore
-          .collection('transactions')
-          .orderBy('time', descending: true)
-          .where('time', isGreaterThanOrEqualTo: startStamp)
-          .get()
-          .then((QuerySnapshot querySnapshot) {
-        querySnapshot.docs.forEach((doc) {
-          print(doc["amount"]);
-          sum += doc["amount"];
-          print(sum);
-        });
-      });
-    } catch (e) {
-      print(e.toString());
-    }
+class TotalMonthlyExpenses extends StatelessWidget {
+  final TextStyle style;
+  TotalMonthlyExpenses({this.style});
 
-    return sum;
-  }
-
+  @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: getMonthlyTotal(),
-        builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-          if (!snapshot.hasData) {
-            return CircularProgressIndicator();
+    int sum = 0;
+    return StreamBuilder(
+        initialData: "Working...",
+        stream: getTransactions(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Text('Something went wrong');
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Text("Loading");
+          }
+          for (var doc in snapshot.data.docs) {
+            if (doc["isApproved"] == true) {
+              sum += doc["amount"];
+            }
           }
           return Text(
-            snapshot.data.toString(),
+            sum.toString(),
+            style: style,
+          );
+        });
+  }
+}
+
+class TotalMonthlyExpensesPerUser extends StatelessWidget {
+  final String user;
+  TotalMonthlyExpensesPerUser({@required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    int sum = 0;
+    return StreamBuilder(
+        initialData: "Working...",
+        stream: getTransactions(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Text('Something went wrong');
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Text("Loading");
+          }
+          for (var doc in snapshot.data.docs) {
+            if (doc["user"] == user && doc["isApproved"] == true) {
+              sum += doc["amount"];
+            }
+          }
+          return Text(
+            sum.toString(),
             style: kAmountStyleXL,
           );
         });
   }
 }
 
-class PreviousTransactions extends StatelessWidget {
-  const PreviousTransactions({Key key}) : super(key: key);
-
-  Future<List<ListTile>> getPreviousTransactions() async {
-    List<ListTile> transactions = [];
-    try {
-      await fireStore
-          .collection('transactions')
-          .orderBy('time', descending: true)
-          .where('time', isGreaterThanOrEqualTo: startStamp)
-          .get()
-          .then((QuerySnapshot querySnapshot) {
-        querySnapshot.docs.forEach((doc) {
-          transactions.add(ListTile(
-            title: Text(doc["user"]),
-            subtitle: Text(DateFormat.yMd()
-                .add_jm()
-                .format(doc["time"].toDate())
-                .toString()),
-            trailing: Text(
-              doc["amount"].toString(),
-              style: kAmountStyle,
-            ),
-          ));
-          print(transactions);
-        });
-      });
-      return transactions;
-    } catch (e) {
-      print(e.toString());
-    }
-    return null;
-  }
+class TransactionsPerUser extends StatelessWidget {
+  final String user;
+  TransactionsPerUser({@required this.user});
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<ListTile>>(
-        future: getPreviousTransactions(),
-        builder:
-            (BuildContext context, AsyncSnapshot<List<ListTile>> snapshot) {
-          if (!snapshot.hasData) {
-            return CircularProgressIndicator();
+    return StreamBuilder(
+        initialData: "Working....",
+        stream: getTransactions(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasError) {
+            return Text('Something went wrong');
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Text("Loading");
           }
           return ListView.builder(
-              itemCount: snapshot.data.length,
+              itemCount: snapshot.data.docs.length,
               itemBuilder: (context, index) {
-                return snapshot.data[index];
+                var doc = snapshot.data.docs[index];
+                if (doc["user"] == user && doc["isApproved"] == true) {
+                  return ListTile(
+                    title: Text(doc["user"]),
+                    subtitle: Text(DateFormat.yMd()
+                        .add_jm()
+                        .format(doc["time"].toDate())
+                        .toString()),
+                    trailing: Text(
+                      doc["amount"].toString(),
+                      style: kAmountStyle,
+                    ),
+                  );
+                }
+                return Material();
               });
         });
   }
