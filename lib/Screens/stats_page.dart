@@ -35,7 +35,10 @@ class StatsPage extends StatelessWidget {
                   ? TotalMonthlyExpenses(
                       style: kAmountStyleXL,
                     )
-                  : TotalMonthlyExpensesPerUser(user: user),
+                  : TotalMonthlyExpensesPerUser(
+                      user: user,
+                      style: kAmountStyleXL,
+                    ),
             ],
           ),
         ),

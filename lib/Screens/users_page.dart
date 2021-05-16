@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:extrac_app/Services/authentication.dart';
+import 'package:extrac_app/Services/querying.dart';
 import 'package:extrac_app/constants/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -6,6 +8,9 @@ import 'package:provider/provider.dart';
 class UsersPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var userDoc = Provider.of<DocumentSnapshot>(context);
+    String user = userDoc.data()["name"];
+    bool isMaster = userDoc.data()["isMaster"];
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     return Stack(
@@ -18,14 +23,14 @@ class UsersPage extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                "Master's Expenditure This Month",
+                "Current User:",
                 style: kLabelStyle.copyWith(color: Colors.white),
               ),
               SizedBox(
                 height: height * 0.02,
               ),
               Text(
-                '25,300 SDG',
+                user,
                 style: kAmountStyleXL,
               ),
             ],
@@ -37,7 +42,7 @@ class UsersPage extends StatelessWidget {
           bottom: 0,
           child: Container(
             padding: EdgeInsets.symmetric(
-              vertical: 30,
+              vertical: 15,
               horizontal: 20,
             ),
             decoration: BoxDecoration(
@@ -49,29 +54,14 @@ class UsersPage extends StatelessWidget {
             ),
             child: Column(
               children: [
-                Card(
-                  elevation: 1,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 15),
-                    height: 60,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.white70,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Tahir',
-                          style: kLabelStyle,
-                        ),
-                        Text(
-                          '18400',
-                          style: kAmountStyle,
-                        )
-                      ],
-                    ),
-                  ),
+                isMaster ? Text('Users:') : Material(),
+                isMaster
+                    ? Expanded(child: UsersList())
+                    : SizedBox(
+                        height: 50,
+                      ),
+                SizedBox(
+                  height: 20,
                 ),
                 ElevatedButton(
                   onPressed: () {

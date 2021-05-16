@@ -21,6 +21,7 @@ class CurrentUserInfo extends ChangeNotifier {
   String userId;
 }
 
+//Queries firebase for all the transactions and returns them in a Stream.
 Stream<QuerySnapshot> getTransactions() {
   var transactions;
   try {
@@ -34,6 +35,18 @@ Stream<QuerySnapshot> getTransactions() {
     print(e.toString());
   }
   return transactions;
+}
+
+//Queries Firebase for all the users and returns them in a stream.
+Stream<QuerySnapshot> getUsers() {
+  var users;
+  try {
+    users = _fireStore.collection('users').snapshots();
+    print(users);
+  } catch (e) {
+    print(e.toString());
+  }
+  return users;
 }
 
 // A widget that gets all the previous transactions by all the users.
@@ -55,15 +68,17 @@ class AllTransactions extends StatelessWidget {
               itemBuilder: (context, index) {
                 var doc = snapshot.data.docs[index];
                 return doc["isApproved"]
-                    ? ListTile(
-                        title: Text(doc["user"]),
-                        subtitle: Text(DateFormat.yMd()
-                            .add_jm()
-                            .format(doc["time"].toDate())
-                            .toString()),
-                        trailing: Text(
-                          doc["amount"].toString(),
-                          style: kAmountStyle,
+                    ? Card(
+                        child: ListTile(
+                          title: Text(doc["user"]),
+                          subtitle: Text(DateFormat.yMd()
+                              .add_jm()
+                              .format(doc["time"].toDate())
+                              .toString()),
+                          trailing: Text(
+                            doc["amount"].toString(),
+                            style: kAmountStyle,
+                          ),
                         ),
                       )
                     : Material();
@@ -72,6 +87,7 @@ class AllTransactions extends StatelessWidget {
   }
 }
 
+//Returns the transactions that haven't been approved.
 class RequestedTransactions extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamBuilder(
@@ -209,7 +225,9 @@ class SumPerCategoryPerUser extends StatelessWidget {
   }
 }
 
-//Returns a a Text widget with the total amount of expenditure for the current month.
+//Takes in the transactions stream and returns a text widget with the sum of the transactions
+//made in the current month.
+//only puts into account approved transactions (where isApproved = true).
 class TotalMonthlyExpenses extends StatelessWidget {
   final TextStyle style;
   TotalMonthlyExpenses({this.style});
@@ -241,9 +259,13 @@ class TotalMonthlyExpenses extends StatelessWidget {
   }
 }
 
+//Takes in the transactions stream and returns a text widget with the sum of the transactions
+//made in the current month by the current user.
+//only puts into account approved transactions (where isApproved = true).
 class TotalMonthlyExpensesPerUser extends StatelessWidget {
   final String user;
-  TotalMonthlyExpensesPerUser({@required this.user});
+  final TextStyle style;
+  TotalMonthlyExpensesPerUser({@required this.user, this.style});
 
   @override
   Widget build(BuildContext context) {
@@ -266,12 +288,14 @@ class TotalMonthlyExpensesPerUser extends StatelessWidget {
           }
           return Text(
             sum.toString(),
-            style: kAmountStyleXL,
+            style: style,
           );
         });
   }
 }
 
+//Returns a ListView that has all the transactions made by the current user logged in.
+//only shows transactions that are approved (where isApproved = true).
 class TransactionsPerUser extends StatelessWidget {
   final String user;
   TransactionsPerUser({@required this.user});
@@ -294,19 +318,56 @@ class TransactionsPerUser extends StatelessWidget {
               itemBuilder: (context, index) {
                 var doc = snapshot.data.docs[index];
                 if (doc["user"] == user && doc["isApproved"] == true) {
-                  return ListTile(
-                    title: Text(doc["user"]),
-                    subtitle: Text(DateFormat.yMd()
-                        .add_jm()
-                        .format(doc["time"].toDate())
-                        .toString()),
-                    trailing: Text(
-                      doc["amount"].toString(),
-                      style: kAmountStyle,
+                  return Card(
+                    elevation: 3,
+                    child: ListTile(
+                      title: Text(doc["user"]),
+                      subtitle: Text(DateFormat.yMd()
+                          .add_jm()
+                          .format(doc["time"].toDate())
+                          .toString()),
+                      trailing: Text(
+                        doc["amount"].toString(),
+                        style: kAmountStyle,
+                      ),
                     ),
                   );
                 }
                 return Material();
+              });
+        });
+  }
+}
+
+//Returns a ListView of all the users with their phone numbers and their total expenditure this month.
+class UsersList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+        initialData: "Working....",
+        stream: getUsers(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasError) {
+            return Text('Something went wrong');
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Text("Loading");
+          }
+          return ListView.builder(
+              itemCount: snapshot.data.docs.length,
+              itemBuilder: (context, index) {
+                var doc = snapshot.data.docs[index];
+                return Card(
+                  elevation: 3,
+                  child: ListTile(
+                      title: Text(doc["name"]),
+                      subtitle: Text("number: ${doc["phoneNumber"]}"),
+                      trailing: TotalMonthlyExpensesPerUser(
+                        user: doc["name"],
+                        style: kAmountStyle,
+                      )),
+                );
               });
         });
   }

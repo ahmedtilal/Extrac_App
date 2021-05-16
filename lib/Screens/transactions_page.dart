@@ -32,7 +32,10 @@ class TransactionsPage extends StatelessWidget {
                   ? TotalMonthlyExpenses(
                       style: kAmountStyleXL,
                     )
-                  : TotalMonthlyExpensesPerUser(user: user),
+                  : TotalMonthlyExpensesPerUser(
+                      user: user,
+                      style: kAmountStyleXL,
+                    ),
               SizedBox(
                 height: 20.0,
               ),
