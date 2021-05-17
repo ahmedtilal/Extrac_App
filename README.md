@@ -1,4 +1,4 @@
-# extrac_app
+# Extrac_app
 
 Expenses tracking application.
 
