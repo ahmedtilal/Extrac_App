@@ -8,8 +8,14 @@ class TransactionsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var userDoc = Provider.of<DocumentSnapshot>(context);
-    String user = userDoc.data()["name"];
-    bool isMaster = userDoc.data()["isMaster"];
+    String user = 'Waiting on user name';
+    if (userDoc != null) {
+      user = userDoc.data()["name"];
+    }
+    bool isMaster = false;
+    if (userDoc != null) {
+      isMaster = userDoc.data()["isMaster"];
+    }
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     return Stack(

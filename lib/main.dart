@@ -136,13 +136,21 @@ class UserWrapper extends StatelessWidget {
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(),
+            return Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
             );
+          } else if (snapshot != null) {
+            var doc = snapshot.data;
+            bool isMaster = doc["isMaster"];
+            return isMaster ? Master() : Child();
           }
-          var doc = snapshot.data;
-          bool isMaster = doc["isMaster"];
-          return isMaster ? Master() : Child();
+          return Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
         });
   }
 }

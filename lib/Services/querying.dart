@@ -30,7 +30,6 @@ Stream<QuerySnapshot> getTransactions() {
         .orderBy('time', descending: true)
         .where('time', isGreaterThanOrEqualTo: startStamp)
         .snapshots();
-    print(transactions);
   } catch (e) {
     print(e.toString());
   }
@@ -42,7 +41,6 @@ Stream<QuerySnapshot> getUsers() {
   var users;
   try {
     users = _fireStore.collection('users').snapshots();
-    print(users);
   } catch (e) {
     print(e.toString());
   }
@@ -368,6 +366,61 @@ class UsersList extends StatelessWidget {
                         style: kAmountStyle,
                       )),
                 );
+              });
+        });
+  }
+}
+
+//The two functions below were just used for testing purposes to check how to query sub-collections
+//in firebase, the test was Passed. Therefore:
+//TODO Migrate the whole application's logic to write, update, and query data depending on the following.
+Stream<QuerySnapshot> testerGetter() {
+  var transactions;
+  try {
+    transactions = _fireStore
+        .collection('users')
+        .doc('vKuRv7WdrsUY7qIHeMf3GsuYxuY2')
+        .collection('transactions')
+        .snapshots();
+    print(transactions);
+  } catch (e) {
+    print(e.toString());
+  }
+  return transactions;
+}
+
+class TesterTransaction extends StatelessWidget {
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+        initialData: "Working....",
+        stream: testerGetter(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasError) {
+            return Text('Something went wrong');
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Text("Loading");
+          }
+          return ListView.builder(
+              itemCount: snapshot.data.docs.length,
+              itemBuilder: (context, index) {
+                var doc = snapshot.data.docs[index];
+                return doc["isApproved"]
+                    ? Card(
+                        child: ListTile(
+                          title: Text(doc["user"]),
+                          subtitle: Text(DateFormat.yMd()
+                              .add_jm()
+                              .format(doc["time"].toDate())
+                              .toString()),
+                          trailing: Text(
+                            doc["amount"].toString(),
+                            style: kAmountStyle,
+                          ),
+                        ),
+                      )
+                    : Material();
               });
         });
   }
