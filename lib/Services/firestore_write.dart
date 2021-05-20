@@ -45,7 +45,6 @@ class AddUser extends StatelessWidget {
             builder: (context) => AuthenticationWrapper(),
           ),
         );
-        //TODO remember to change for the condition of the non master user.
       },
       style: kAltButtonStyle,
       child: Text('SIGNUP', style: kAltButtonTextStyle),
@@ -59,19 +58,21 @@ class AddTransaction {
   final int amount;
   final String user;
   final bool isApproved;
+  final String parentUserId;
 
   AddTransaction(
       {this.amount,
       this.user,
       this.category,
       this.description,
-      this.isApproved});
-
-  CollectionReference transactions =
-      FirebaseFirestore.instance.collection('transactions');
+      this.isApproved,
+      @required this.parentUserId});
 
   Future<void> addTransaction() {
-    return transactions
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(parentUserId)
+        .collection('transactions')
         .add({
           'user': user,
           'category': category,
@@ -85,8 +86,11 @@ class AddTransaction {
   }
 
 //Function called when master user wants to approve a transaction.
-  Future<void> approveTransaction(String docReference) {
-    return transactions
+  Future<void> approveTransaction(String docReference, String parentUserId) {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(parentUserId)
+        .collection('transactions')
         .doc(docReference)
         .update({'isApproved': true})
         .then((value) => print("Transaction Approved"))

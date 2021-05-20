@@ -10,12 +10,14 @@ class UsersPage extends StatelessWidget {
   Widget build(BuildContext context) {
     var userDoc = Provider.of<DocumentSnapshot>(context);
     String user = 'Waiting on user name';
+    bool isMaster = false;
+    String parentUserId;
     if (userDoc != null) {
       user = userDoc.data()["name"];
-    }
-    bool isMaster = false;
-    if (userDoc != null) {
       isMaster = userDoc.data()["isMaster"];
+      isMaster
+          ? parentUserId = userDoc.id
+          : parentUserId = userDoc.data()["parent"];
     }
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
@@ -62,7 +64,10 @@ class UsersPage extends StatelessWidget {
               children: [
                 isMaster ? Text('Users:') : Material(),
                 isMaster
-                    ? Expanded(child: UsersList())
+                    ? Expanded(
+                        child: UsersList(
+                        parent: parentUserId,
+                      ))
                     : SizedBox(
                         height: 50,
                       ),

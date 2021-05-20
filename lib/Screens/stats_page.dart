@@ -10,12 +10,14 @@ class StatsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     var userDoc = Provider.of<DocumentSnapshot>(context);
     String user = 'Waiting on user name';
+    bool isMaster = false;
+    String parentUserId;
     if (userDoc != null) {
       user = userDoc.data()["name"];
-    }
-    bool isMaster = false;
-    if (userDoc != null) {
       isMaster = userDoc.data()["isMaster"];
+      isMaster
+          ? parentUserId = userDoc.id
+          : parentUserId = userDoc.data()["parent"];
     }
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
@@ -39,9 +41,11 @@ class StatsPage extends StatelessWidget {
               ),
               isMaster
                   ? TotalMonthlyExpenses(
+                      parent: parentUserId,
                       style: kAmountStyleXL,
                     )
                   : TotalMonthlyExpensesPerUser(
+                      parent: parentUserId,
                       user: user,
                       style: kAmountStyleXL,
                     ),
@@ -70,10 +74,12 @@ class StatsPage extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             SumPerCategoryPerUser(
+                              parent: parentUserId,
                               category: 'Medicines',
                               user: user,
                             ),
                             SumPerCategoryPerUser(
+                              parent: parentUserId,
                               category: 'Bills',
                               user: user,
                             ),
@@ -83,10 +89,12 @@ class StatsPage extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             SumPerCategoryPerUser(
+                              parent: parentUserId,
                               category: 'Education',
                               user: user,
                             ),
                             SumPerCategoryPerUser(
+                              parent: parentUserId,
                               category: 'Groceries',
                               user: user,
                             ),
@@ -106,15 +114,26 @@ class MasterUserColumn extends StatelessWidget {
   const MasterUserColumn({Key key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
+    var userDoc = Provider.of<DocumentSnapshot>(context);
+    bool isMaster = true;
+    String parentUserId;
+    if (userDoc != null) {
+      isMaster = userDoc.data()["isMaster"];
+      isMaster
+          ? parentUserId = userDoc.id
+          : parentUserId = userDoc.data()["parent"];
+    }
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             SumPerCategory(
+              parent: parentUserId,
               category: 'Medicines',
             ),
             SumPerCategory(
+              parent: parentUserId,
               category: 'Bills',
             ),
           ],
@@ -122,8 +141,8 @@ class MasterUserColumn extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            SumPerCategory(category: 'Education'),
-            SumPerCategory(category: 'Groceries'),
+            SumPerCategory(parent: parentUserId, category: 'Education'),
+            SumPerCategory(parent: parentUserId, category: 'Groceries'),
           ],
         ),
       ],

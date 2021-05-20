@@ -16,12 +16,14 @@ class _AddExpensePageState extends State<AddExpensePage> {
   Widget build(BuildContext context) {
     var userDoc = Provider.of<DocumentSnapshot>(context);
     String user = 'Waiting on user name';
+    bool isMaster = false;
+    String parentUserId;
     if (userDoc != null) {
       user = userDoc.data()["name"];
-    }
-    bool isMaster = false;
-    if (userDoc != null) {
       isMaster = userDoc.data()["isMaster"];
+      isMaster
+          ? parentUserId = userDoc.id
+          : parentUserId = userDoc.data()["parent"];
     }
     TextEditingController amountController = TextEditingController();
     TextEditingController descriptionController = TextEditingController();
@@ -88,12 +90,13 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 ElevatedButton(
                   onPressed: () async {
                     await AddTransaction(
-                      category: categoriesDropDownValue,
-                      user: user,
-                      description: descriptionController.text,
-                      amount: int.parse(amountController.text),
-                      isApproved: isMaster,
-                    ).addTransaction();
+                            category: categoriesDropDownValue,
+                            user: user,
+                            description: descriptionController.text,
+                            amount: int.parse(amountController.text),
+                            isApproved: isMaster,
+                            parentUserId: parentUserId)
+                        .addTransaction();
                     Navigator.pushNamed(context, 'home');
                   },
                   child: Text(

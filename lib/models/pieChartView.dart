@@ -1,13 +1,24 @@
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:extrac_app/Services/querying.dart';
 import 'package:extrac_app/constants/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:provider/provider.dart';
 
 class PieChartView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var userDoc = Provider.of<DocumentSnapshot>(context);
+    bool isMaster = false;
+    String parentUserId;
+    if (userDoc != null) {
+      isMaster = userDoc.data()["isMaster"];
+      isMaster
+          ? parentUserId = userDoc.id
+          : parentUserId = userDoc.data()["parent"];
+    }
     double total = 0;
     kCategoriesList.forEach((element) => total += element.amount);
     return Expanded(
@@ -65,6 +76,7 @@ class PieChartView extends StatelessWidget {
                       ]),
                   child: Center(
                     child: TotalMonthlyExpenses(
+                      parent: parentUserId,
                       style: kLabelStyle,
                     ),
                   ),

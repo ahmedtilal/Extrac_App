@@ -22,10 +22,12 @@ class CurrentUserInfo extends ChangeNotifier {
 }
 
 //Queries firebase for all the transactions and returns them in a Stream.
-Stream<QuerySnapshot> getTransactions() {
+Stream<QuerySnapshot> getTransactions(String parent) {
   var transactions;
   try {
     transactions = _fireStore
+        .collection('users')
+        .doc(parent)
         .collection('transactions')
         .orderBy('time', descending: true)
         .where('time', isGreaterThanOrEqualTo: startStamp)
@@ -37,10 +39,14 @@ Stream<QuerySnapshot> getTransactions() {
 }
 
 //Queries Firebase for all the users and returns them in a stream.
-Stream<QuerySnapshot> getUsers() {
+Stream<QuerySnapshot> getUsers(String parent) {
   var users;
   try {
-    users = _fireStore.collection('users').snapshots();
+    users = _fireStore
+        .collection('users')
+        .doc(parent)
+        .collection('childUsers')
+        .snapshots();
   } catch (e) {
     print(e.toString());
   }
@@ -49,15 +55,16 @@ Stream<QuerySnapshot> getUsers() {
 
 // A widget that gets all the previous transactions by all the users.
 class AllTransactions extends StatelessWidget {
+  final String parent;
+  AllTransactions({@required this.parent});
   Widget build(BuildContext context) {
     return StreamBuilder(
         initialData: "Working....",
-        stream: getTransactions(),
+        stream: getTransactions(parent),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasError) {
             return Text('Something went wrong');
           }
-
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Text("Loading");
           }
@@ -87,10 +94,12 @@ class AllTransactions extends StatelessWidget {
 
 //Returns the transactions that haven't been approved.
 class RequestedTransactions extends StatelessWidget {
+  final String parent;
+  RequestedTransactions({@required this.parent});
   Widget build(BuildContext context) {
     return StreamBuilder(
         initialData: "Working....",
-        stream: getTransactions(),
+        stream: getTransactions(parent),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasError) {
             return Text('Something went wrong');
@@ -114,8 +123,8 @@ class RequestedTransactions extends StatelessWidget {
                             .format(doc["time"].toDate())
                             .toString(),
                         onPressed: () {
-                          AddTransaction()
-                              .approveTransaction(doc.id.toString());
+                          AddTransaction(parentUserId: parent)
+                              .approveTransaction(doc.id.toString(), parent);
                         },
                       )
                     : Material();
@@ -128,14 +137,15 @@ class RequestedTransactions extends StatelessWidget {
 // ... and provides the sum of the transactions in a specific category in a...
 //... DisplayBoxCard(a view model created in the models/widgets file).
 class SumPerCategory extends StatelessWidget {
+  final String parent;
   final String category;
-  SumPerCategory({@required this.category});
+  SumPerCategory({@required this.category, @required this.parent});
   @override
   Widget build(BuildContext context) {
     int sum = 0;
     return StreamBuilder(
         initialData: "Working...",
-        stream: getTransactions(),
+        stream: getTransactions(parent),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Text('Something went wrong');
@@ -159,14 +169,15 @@ class SumPerCategory extends StatelessWidget {
 
 //Does the same as the widget above and only difference is returning a text widget instead.
 class SumPerCategoryText extends StatelessWidget {
+  final String parent;
   final String category;
-  SumPerCategoryText({@required this.category});
+  SumPerCategoryText({@required this.category, @required this.parent});
   @override
   Widget build(BuildContext context) {
     int sum = 0;
     return StreamBuilder(
         initialData: "Working...",
-        stream: getTransactions(),
+        stream: getTransactions(parent),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Text('Something went wrong');
@@ -190,16 +201,18 @@ class SumPerCategoryText extends StatelessWidget {
 
 //Gets sum of transactions for a specific category done by a specific user.
 class SumPerCategoryPerUser extends StatelessWidget {
+  final String parent;
   final String category;
   final String user;
-  SumPerCategoryPerUser({@required this.category, @required this.user});
+  SumPerCategoryPerUser(
+      {@required this.category, @required this.user, @required this.parent});
 
   @override
   Widget build(BuildContext context) {
     int sum = 0;
     return StreamBuilder(
         initialData: "Working...",
-        stream: getTransactions(),
+        stream: getTransactions(parent),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Text('Something went wrong');
@@ -227,15 +240,16 @@ class SumPerCategoryPerUser extends StatelessWidget {
 //made in the current month.
 //only puts into account approved transactions (where isApproved = true).
 class TotalMonthlyExpenses extends StatelessWidget {
+  final String parent;
   final TextStyle style;
-  TotalMonthlyExpenses({this.style});
+  TotalMonthlyExpenses({this.style, @required this.parent});
 
   @override
   Widget build(BuildContext context) {
     int sum = 0;
     return StreamBuilder(
         initialData: "Working...",
-        stream: getTransactions(),
+        stream: getTransactions(parent),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Text('Something went wrong');
@@ -261,16 +275,18 @@ class TotalMonthlyExpenses extends StatelessWidget {
 //made in the current month by the current user.
 //only puts into account approved transactions (where isApproved = true).
 class TotalMonthlyExpensesPerUser extends StatelessWidget {
+  final String parent;
   final String user;
   final TextStyle style;
-  TotalMonthlyExpensesPerUser({@required this.user, this.style});
 
+  TotalMonthlyExpensesPerUser(
+      {@required this.parent, @required this.user, this.style});
   @override
   Widget build(BuildContext context) {
     int sum = 0;
     return StreamBuilder(
         initialData: "Working...",
-        stream: getTransactions(),
+        stream: getTransactions(parent),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Text('Something went wrong');
@@ -295,14 +311,15 @@ class TotalMonthlyExpensesPerUser extends StatelessWidget {
 //Returns a ListView that has all the transactions made by the current user logged in.
 //only shows transactions that are approved (where isApproved = true).
 class TransactionsPerUser extends StatelessWidget {
+  final String parent;
   final String user;
-  TransactionsPerUser({@required this.user});
+  TransactionsPerUser({@required this.parent, @required this.user});
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
         initialData: "Working....",
-        stream: getTransactions(),
+        stream: getTransactions(parent),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasError) {
             return Text('Something went wrong');
@@ -339,11 +356,13 @@ class TransactionsPerUser extends StatelessWidget {
 
 //Returns a ListView of all the users with their phone numbers and their total expenditure this month.
 class UsersList extends StatelessWidget {
+  final String parent;
+  UsersList({@required this.parent});
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
         initialData: "Working....",
-        stream: getUsers(),
+        stream: getUsers(parent),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasError) {
             return Text('Something went wrong');
@@ -362,65 +381,11 @@ class UsersList extends StatelessWidget {
                       title: Text(doc["name"]),
                       subtitle: Text("number: ${doc["phoneNumber"]}"),
                       trailing: TotalMonthlyExpensesPerUser(
+                        parent: parent,
                         user: doc["name"],
                         style: kAmountStyle,
                       )),
                 );
-              });
-        });
-  }
-}
-
-//The two functions below were just used for testing purposes to check how to query sub-collections
-//in firebase, the test was Passed. Therefore:
-//TODO Migrate the whole application's logic to write, update, and query data depending on the following.
-Stream<QuerySnapshot> testerGetter() {
-  var transactions;
-  try {
-    transactions = _fireStore
-        .collection('users')
-        .doc('vKuRv7WdrsUY7qIHeMf3GsuYxuY2')
-        .collection('transactions')
-        .snapshots();
-    print(transactions);
-  } catch (e) {
-    print(e.toString());
-  }
-  return transactions;
-}
-
-class TesterTransaction extends StatelessWidget {
-  Widget build(BuildContext context) {
-    return StreamBuilder(
-        initialData: "Working....",
-        stream: testerGetter(),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.hasError) {
-            return Text('Something went wrong');
-          }
-
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Text("Loading");
-          }
-          return ListView.builder(
-              itemCount: snapshot.data.docs.length,
-              itemBuilder: (context, index) {
-                var doc = snapshot.data.docs[index];
-                return doc["isApproved"]
-                    ? Card(
-                        child: ListTile(
-                          title: Text(doc["user"]),
-                          subtitle: Text(DateFormat.yMd()
-                              .add_jm()
-                              .format(doc["time"].toDate())
-                              .toString()),
-                          trailing: Text(
-                            doc["amount"].toString(),
-                            style: kAmountStyle,
-                          ),
-                        ),
-                      )
-                    : Material();
               });
         });
   }

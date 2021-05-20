@@ -1,13 +1,24 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:extrac_app/Services/querying.dart';
 import 'package:extrac_app/constants/constants.dart';
 import 'package:extrac_app/models/pieChartView.dart';
 import 'package:extrac_app/models/widget_models.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class RequestsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var userDoc = Provider.of<DocumentSnapshot>(context);
+    bool isMaster = true;
+    String parentUserId;
+    if (userDoc != null) {
+      isMaster = userDoc.data()["isMaster"];
+      isMaster
+          ? parentUserId = userDoc.id
+          : parentUserId = userDoc.data()["parent"];
+    }
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     return Stack(
@@ -76,7 +87,10 @@ class RequestsPage extends StatelessWidget {
                   height: 15,
                 ),
                 //TODO provide those requests cards using a ListViewBuilder and inject data from backend.
-                Expanded(child: RequestedTransactions()),
+                Expanded(
+                    child: RequestedTransactions(
+                  parent: parentUserId,
+                )),
               ],
             ),
           ),

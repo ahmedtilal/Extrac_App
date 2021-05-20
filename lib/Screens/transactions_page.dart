@@ -9,12 +9,14 @@ class TransactionsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     var userDoc = Provider.of<DocumentSnapshot>(context);
     String user = 'Waiting on user name';
+    bool isMaster = false;
+    String parentUserId;
     if (userDoc != null) {
       user = userDoc.data()["name"];
-    }
-    bool isMaster = false;
-    if (userDoc != null) {
       isMaster = userDoc.data()["isMaster"];
+      isMaster
+          ? parentUserId = userDoc.id
+          : parentUserId = userDoc.data()["parent"];
     }
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
@@ -36,9 +38,11 @@ class TransactionsPage extends StatelessWidget {
               ),
               isMaster
                   ? TotalMonthlyExpenses(
+                      parent: parentUserId,
                       style: kAmountStyleXL,
                     )
                   : TotalMonthlyExpensesPerUser(
+                      parent: parentUserId,
                       user: user,
                       style: kAmountStyleXL,
                     ),
@@ -66,9 +70,12 @@ class TransactionsPage extends StatelessWidget {
               ),
             ),
             child: isMaster
-                ? AllTransactions()
+                ? AllTransactions(
+                    parent: parentUserId,
+                  )
                 : TransactionsPerUser(
                     user: user,
+                    parent: parentUserId,
                   ),
           ),
         ),

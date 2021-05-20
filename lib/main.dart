@@ -52,7 +52,6 @@ class _AppState extends State<App> {
     if (_error) {
       print('Something went wrong.');
     }
-
     // Show a loader until FlutterFire is initialized
     if (!_initialized) {
       return CircularProgressIndicator();
@@ -68,10 +67,6 @@ class _AppState extends State<App> {
               context.read<AuthenticationService>().authStateChanges,
           initialData: null,
         ),
-        // StreamProvider<DocumentSnapshot>(
-        //     create: (_) =>
-        //         UserWrapper(FirebaseAuth.instance.currentUser).currentUser,
-        //     initialData: null),
       ],
       child: MaterialApp(
         title: 'Extrac',
@@ -106,6 +101,7 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
         create: (context) => UserWrapper(firebaseUser).currentUser,
         initialData: null,
         child: UserWrapper(firebaseUser));
+    // );
   }
 }
 
@@ -113,28 +109,47 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
 class UserWrapper extends StatelessWidget {
   final User user;
   UserWrapper(this.user);
-  Stream<DocumentSnapshot> get currentUser {
+
+  Stream<DocumentSnapshot> get currentUser async* {
     String userId;
+    String parentId;
     if (user != null) {
       userId = user.uid;
+      await FirebaseFirestore.instance
+          .collection('users')
+          .where('children', arrayContains: userId)
+          .get()
+          .then((QuerySnapshot snapshot) {
+        snapshot.docs.forEach((doc) {
+          parentId = doc.id;
+        });
+      });
     }
-    return FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        .snapshots();
+    if (parentId == userId) {
+      yield* FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .snapshots();
+    }
+    if (parentId != userId) {
+      yield* FirebaseFirestore.instance
+          .collection('users')
+          .doc(parentId)
+          .collection('childUsers')
+          .doc(userId)
+          .snapshots();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future:
-            FirebaseFirestore.instance.collection('users').doc(user.uid).get(),
+    return StreamBuilder(
+        stream: currentUser,
         builder:
             (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
           if (snapshot.hasError) {
             return Text('Something went wrong');
           }
-
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Scaffold(
               body: Center(
