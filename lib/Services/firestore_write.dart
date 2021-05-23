@@ -7,17 +7,17 @@ import 'package:provider/provider.dart';
 
 import 'authentication.dart';
 
-class AddUser extends StatelessWidget {
+class AddParentUser extends StatelessWidget {
   final String email;
   final String password;
   final String name;
   final String phoneNumber;
 
-  AddUser({
-    this.email,
-    this.password,
-    this.name,
-    this.phoneNumber,
+  AddParentUser({
+    @required this.email,
+    @required this.password,
+    @required this.name,
+    @required this.phoneNumber,
   });
 
   @override
@@ -29,9 +29,14 @@ class AddUser extends StatelessWidget {
       String userID = FirebaseAuth.instance.currentUser.uid;
       CollectionReference users =
           FirebaseFirestore.instance.collection('users');
-      return users
+      await users
           .doc(userID)
-          .set({'name': name, 'phoneNumber': phoneNumber, 'isMaster': true})
+          .set({
+            'name': name,
+            'phoneNumber': phoneNumber,
+            'isMaster': true,
+            'children': FieldValue.arrayUnion([userID]),
+          })
           .then((value) => print("User Added"))
           .catchError((error) => print("Failed to add user: $error"));
     }
@@ -39,6 +44,67 @@ class AddUser extends StatelessWidget {
     return ElevatedButton(
       onPressed: () async {
         await addUser();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AuthenticationWrapper(),
+          ),
+        );
+      },
+      style: kAltButtonStyle,
+      child: Text('SIGNUP', style: kAltButtonTextStyle),
+    );
+  }
+}
+
+class AddChildUser extends StatelessWidget {
+  final String email;
+  final String password;
+  final String name;
+  final String phoneNumber;
+  final String parentUserId;
+
+  AddChildUser({
+    @required this.email,
+    @required this.password,
+    @required this.name,
+    @required this.phoneNumber,
+    @required this.parentUserId,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    Future<void> addChildUser() async {
+      await Provider.of<AuthenticationService>(context, listen: false)
+          .signUp(email: email, password: password);
+      print('$name, $email, $password, $phoneNumber');
+      String userID = FirebaseAuth.instance.currentUser.uid;
+      CollectionReference users =
+          FirebaseFirestore.instance.collection('users');
+      await users
+          .doc(parentUserId)
+          .update({
+            'children': FieldValue.arrayUnion([userID])
+          })
+          .then((value) => print("User Added to array"))
+          .catchError((error) => print("Failed to add user: $error"));
+      await users
+          .doc(parentUserId)
+          .collection("childUsers")
+          .doc(userID)
+          .set({
+            'isMaster': false,
+            'name': name,
+            'phoneNumber': phoneNumber,
+            'parent': parentUserId
+          })
+          .then((value) => print('User Doc created'))
+          .catchError((error) => print("Failed to add user: $error"));
+    }
+
+    return ElevatedButton(
+      onPressed: () async {
+        await addChildUser();
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -68,8 +134,8 @@ class AddTransaction {
       this.isApproved,
       @required this.parentUserId});
 
-  Future<void> addTransaction() {
-    return FirebaseFirestore.instance
+  Future<void> addTransaction() async {
+    return await FirebaseFirestore.instance
         .collection('users')
         .doc(parentUserId)
         .collection('transactions')

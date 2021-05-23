@@ -31,6 +31,28 @@ final ButtonStyle kButtonStyle = ElevatedButton.styleFrom(
   elevation: 10.0,
 );
 
+final ButtonStyle kSmallButtonStyle = ElevatedButton.styleFrom(
+  onPrimary: Colors.white,
+  primary: kMainColor,
+  minimumSize: Size(140, 30),
+  padding: EdgeInsets.symmetric(horizontal: 16),
+  shape: const RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+  ),
+  elevation: 10.0,
+);
+
+final ButtonStyle kSmallAltButtonStyle = ElevatedButton.styleFrom(
+  onPrimary: Colors.black,
+  primary: Colors.white,
+  minimumSize: Size(140, 30),
+  padding: EdgeInsets.symmetric(horizontal: 16),
+  shape: const RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+  ),
+  elevation: 10.0,
+);
+
 final ButtonStyle kAltButtonStyle = ElevatedButton.styleFrom(
   onPrimary: Colors.black,
   primary: Colors.white,

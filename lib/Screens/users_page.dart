@@ -4,6 +4,7 @@ import 'package:extrac_app/Services/querying.dart';
 import 'package:extrac_app/constants/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share/share.dart';
 
 class UsersPage extends StatelessWidget {
   @override
@@ -69,21 +70,54 @@ class UsersPage extends StatelessWidget {
                         parent: parentUserId,
                       ))
                     : SizedBox(
-                        height: 50,
+                        height: 10,
                       ),
                 SizedBox(
                   height: 20,
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    Provider.of<AuthenticationService>(context, listen: false)
-                        .signOut();
-                  },
-                  child: Text(
-                    'SIGN OUT',
-                    style: kButtonTextStyle,
-                  ),
-                  style: kButtonStyle,
+                isMaster
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              Share.share(
+                                  "Use this code to join my household account in Extrac App:\n"
+                                  "$parentUserId");
+                            },
+                            child: Text(
+                              "SHARE INVITE CODE",
+                            ),
+                            style: kSmallAltButtonStyle,
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              Provider.of<AuthenticationService>(context,
+                                      listen: false)
+                                  .signOut();
+                            },
+                            child: Text(
+                              'SIGN OUT',
+                            ),
+                            style: kSmallButtonStyle,
+                          ),
+                        ],
+                      )
+                    : Center(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Provider.of<AuthenticationService>(context,
+                                    listen: false)
+                                .signOut();
+                          },
+                          child: Text(
+                            'SIGN OUT',
+                          ),
+                          style: kSmallButtonStyle,
+                        ),
+                      ),
+                SizedBox(
+                  height: 10,
                 ),
               ],
             ),

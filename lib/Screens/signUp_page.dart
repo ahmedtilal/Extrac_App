@@ -22,6 +22,8 @@ class _SignUpState extends State<SignUp> {
   String email;
   String phoneNumber;
   String password;
+  String inviteCode;
+  bool isParent = false;
 
   @override
   Widget build(BuildContext context) {
@@ -62,15 +64,16 @@ class _SignUpState extends State<SignUp> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(
-                  child: Image.asset(
-                    'lib/assets/logo.png',
-                    width: 75.0,
-                    height: 130.0,
-                  ),
-                ),
-                SizedBox(
-                  height: 15.0,
+                CheckboxListTile(
+                  title: Text("Are you a parent user ?"),
+                  value: isParent,
+                  onChanged: (bool value) {
+                    setState(() {
+                      isParent = value;
+                    });
+                    print(isParent);
+                  },
+                  contentPadding: EdgeInsets.fromLTRB(0, 15, 15, 15),
                 ),
                 Text(
                   'Please fill in the fields below :',
@@ -147,31 +150,42 @@ class _SignUpState extends State<SignUp> {
                     obscureText: true,
                   ),
                 ),
-                // SizedBox(
-                //   height: 10.0,
-                // ),
-                // InputField(
-                //   child: TextField(
-                //     onChanged: (value) {
-                //       setState(() {
-                //         confirmedPassword = value;
-                //       });
-                //     },
-                //     decoration: InputDecoration(
-                //         hintText: 'Confirm Password', border: InputBorder.none),
-                //     obscureText: true,
-                //   ),
-                // ),
+                SizedBox(
+                  height: 10,
+                ),
+                isParent
+                    ? Material()
+                    : InputField(
+                        child: TextField(
+                          onChanged: (value) {
+                            setState(() {
+                              inviteCode = value;
+                            });
+                          },
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: 'Paste Invite Code Here',
+                          ),
+                          keyboardType: TextInputType.phone,
+                        ),
+                      ),
                 SizedBox(
                   height: 15.0,
                 ),
                 Center(
-                  child: AddUser(
-                    email: email,
-                    password: password,
-                    name: name,
-                    phoneNumber: phoneNumber,
-                  ),
+                  child: isParent
+                      ? AddParentUser(
+                          email: email,
+                          password: password,
+                          name: name,
+                          phoneNumber: phoneNumber,
+                        )
+                      : AddChildUser(
+                          email: email,
+                          password: password,
+                          name: name,
+                          phoneNumber: phoneNumber,
+                          parentUserId: inviteCode),
                 ),
               ],
             ),
