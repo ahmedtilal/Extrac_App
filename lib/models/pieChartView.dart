@@ -1,26 +1,18 @@
 import 'dart:math';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:extrac_app/Services/querying.dart';
 import 'package:extrac_app/constants/constants.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
-import 'package:provider/provider.dart';
 
 class PieChartView extends StatelessWidget {
+  final String parentUserId;
+  final List<Category> catList;
+  PieChartView({@required this.parentUserId, @required this.catList});
+
   @override
   Widget build(BuildContext context) {
-    var userDoc = Provider.of<DocumentSnapshot>(context);
-    bool isMaster = false;
-    String parentUserId;
-    if (userDoc != null) {
-      isMaster = userDoc.data()["isMaster"];
-      isMaster
-          ? parentUserId = userDoc.id
-          : parentUserId = userDoc.data()["parent"];
-    }
-    double total = 0;
-    kCategoriesList.forEach((element) => total += element.amount);
     return Expanded(
       flex: 4,
       child: LayoutBuilder(
@@ -50,8 +42,7 @@ class PieChartView extends StatelessWidget {
                   child: CustomPaint(
                     child: Center(),
                     foregroundPainter: PieChart(
-                        width: constraint.maxWidth * 0.4,
-                        categories: kCategoriesList),
+                        width: constraint.maxWidth * 0.4, categories: catList),
                   ),
                 ),
               ),
@@ -100,6 +91,7 @@ class PieChart extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     Offset center = Offset(size.width / 2, size.height / 2);
     double radius = min(size.width / 2, size.height / 2);
+
     var paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = width / 2;
@@ -123,5 +115,5 @@ class PieChart extends CustomPainter {
 class Category {
   Category(this.name, {@required this.amount});
   final String name;
-  final double amount;
+  int amount;
 }

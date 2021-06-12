@@ -1,9 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 
-/*TODO implement new way of Signing up with the new database architecture and test it,
-*  The new architecture is nested under the user zamalek@email.com*/
-
 class AuthenticationService extends ChangeNotifier {
   final FirebaseAuth _firebaseAuth;
   AuthenticationService(this._firebaseAuth);

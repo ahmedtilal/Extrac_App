@@ -137,12 +137,13 @@ class RequestCard extends StatelessWidget {
 }
 
 //Column which displays all the category rows along with the amounts against them.
-class CategoriesList extends StatelessWidget {
+class CategoriesListWithAmounts extends StatelessWidget {
+  final String parent;
+  CategoriesListWithAmounts({@required this.parent});
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      flex: 3,
-      child: Row(
+    return ListView(children: [
+      Row(
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -152,11 +153,11 @@ class CategoriesList extends StatelessWidget {
             width: 10,
           ),
           Column(
-            children: getAmounts(),
+            children: getAmounts(parent),
           ),
         ],
       ),
-    );
+    ]);
   }
 }
 
@@ -195,7 +196,7 @@ List<CategoryRow> getCatList() {
   for (var i = 0; i < kCategoriesList.length; i++) {
     categoryRowList.add(
       CategoryRow(
-        text: kCategoriesList[i].name,
+        text: kCategoriesList[i],
         color: kCategoriesColors[i],
       ),
     );
@@ -204,12 +205,13 @@ List<CategoryRow> getCatList() {
 }
 
 //Function that adds amounts of all categories to come up with the grand total shown in the centre of the pie chart.
-List<SumPerCategoryText> getAmounts() {
+List<SumPerCategoryText> getAmounts(String parent) {
   List<SumPerCategoryText> amountsList = [];
   for (var i = 0; i < kCategoriesList.length; i++) {
     amountsList.add(
       SumPerCategoryText(
-        category: kCategoriesList[i].name,
+        parent: parent,
+        category: kCategoriesList[i],
       ),
     );
   }

@@ -113,23 +113,23 @@ class LogIn extends StatelessWidget {
                   SizedBox(
                     height: 15.0,
                   ),
-                  Text('- or -'),
-                  Text('Sign in with'),
-                  SizedBox(height: 20.0),
-                  GestureDetector(
-                    child: Container(
-                      height: 60.0,
-                      width: 60.0,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: kSecondaryColor,
-                        image: DecorationImage(
-                          image: AssetImage('lib/assets/google_logo.png'),
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20.0),
+                  // Text('- or -'),
+                  // Text('Sign in with'),
+                  // SizedBox(height: 20.0),
+                  // GestureDetector(
+                  //   child: Container(
+                  //     height: 60.0,
+                  //     width: 60.0,
+                  //     decoration: BoxDecoration(
+                  //       shape: BoxShape.circle,
+                  //       color: kSecondaryColor,
+                  //       image: DecorationImage(
+                  //         image: AssetImage('lib/assets/google_logo.png'),
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
+                  SizedBox(height: 120.0),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

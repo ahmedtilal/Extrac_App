@@ -14,11 +14,9 @@ class UsersPage extends StatelessWidget {
     bool isMaster = false;
     String parentUserId;
     if (userDoc != null) {
-      user = userDoc.data()["name"];
-      isMaster = userDoc.data()["isMaster"];
-      isMaster
-          ? parentUserId = userDoc.id
-          : parentUserId = userDoc.data()["parent"];
+      user = userDoc["name"];
+      isMaster = userDoc["isMaster"];
+      isMaster ? parentUserId = userDoc.id : parentUserId = userDoc["parent"];
     }
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;

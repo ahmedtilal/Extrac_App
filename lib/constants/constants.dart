@@ -1,4 +1,3 @@
-import 'package:extrac_app/models/pieChartView.dart';
 import 'package:flutter/material.dart';
 
 const Color kMainColor = Color(0xff4f3d9b);
@@ -101,13 +100,13 @@ const TextStyle kLabelStyleL = TextStyle(
     fontWeight: FontWeight.w700,
     color: kMainColor);
 
-final List<Category> kCategoriesList = [
-  Category('Groceries', amount: 500.0),
-  Category('Medicines', amount: 250.0),
-  Category('Education', amount: 400.0),
-  Category('Fuel', amount: 100.0),
-  Category('Bills', amount: 150.0),
-  Category('Stationery', amount: 350.0),
+final List<String> kCategoriesList = [
+  'Groceries',
+  'Medicines',
+  'Education',
+  'Fuel',
+  'Bills',
+  'Stationery',
 ];
 
 final kCategoriesColors = [
@@ -119,5 +118,3 @@ final kCategoriesColors = [
   Colors.white,
   Colors.deepOrange
 ];
-
-final kUsersList = ['Tahir', 'Ahmed', 'Mansour', 'Zuhair', 'Abdo', 'Aminko'];

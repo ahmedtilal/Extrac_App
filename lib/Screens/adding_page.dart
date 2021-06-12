@@ -19,11 +19,9 @@ class _AddExpensePageState extends State<AddExpensePage> {
     bool isMaster = false;
     String parentUserId;
     if (userDoc != null) {
-      user = userDoc.data()["name"];
-      isMaster = userDoc.data()["isMaster"];
-      isMaster
-          ? parentUserId = userDoc.id
-          : parentUserId = userDoc.data()["parent"];
+      user = userDoc["name"];
+      isMaster = userDoc["isMaster"];
+      isMaster ? parentUserId = userDoc.id : parentUserId = userDoc["parent"];
     }
     TextEditingController amountController = TextEditingController();
     TextEditingController descriptionController = TextEditingController();
@@ -119,23 +117,10 @@ List<DropdownMenuItem<String>> getCategoryItems() {
   for (var i = 0; i < kCategoriesList.length; i++) {
     itemsList.add(
       DropdownMenuItem(
-        value: kCategoriesList[i].name,
-        child: Text(kCategoriesList[i].name),
+        value: kCategoriesList[i],
+        child: Text(kCategoriesList[i]),
       ),
     );
   }
   return itemsList;
-}
-
-List<DropdownMenuItem<String>> getUserItems() {
-  List<DropdownMenuItem<String>> usersList = [];
-  for (var i = 0; i < kCategoriesList.length; i++) {
-    usersList.add(
-      DropdownMenuItem(
-        value: kUsersList[i],
-        child: Text(kUsersList[i]),
-      ),
-    );
-  }
-  return usersList;
 }

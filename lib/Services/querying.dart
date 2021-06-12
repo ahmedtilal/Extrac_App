@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:extrac_app/Services/firestore_write.dart';
 import 'package:extrac_app/constants/constants.dart';
+import 'package:extrac_app/models/pieChartView.dart';
 import 'package:extrac_app/models/widget_models.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -38,6 +39,29 @@ Stream<QuerySnapshot> getTransactions(String parent) {
   return transactions;
 }
 
+//Takes in category name and returns an integer with the sum of amounts for this category.
+Future<int> getAmount(String parent, String category) async {
+  int sum;
+  try {
+    await _fireStore
+        .collection("users")
+        .doc(parent)
+        .collection("transactions")
+        .where("time", isGreaterThanOrEqualTo: startStamp)
+        .where("category", isEqualTo: category)
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        sum += doc["amount"];
+        print(doc["amount"]);
+      });
+    });
+  } catch (e) {
+    print(e);
+  }
+  return sum;
+}
+
 //Queries Firebase for all the users and returns them in a stream.
 Stream<QuerySnapshot> getUsers(String parent) {
   var users;
@@ -51,6 +75,31 @@ Stream<QuerySnapshot> getUsers(String parent) {
     print(e.toString());
   }
   return users;
+}
+
+Category getCategoriesAmounts(String category, String parent) {
+  int sum;
+  StreamBuilder(
+      initialData: "Working...",
+      stream: getTransactions(parent),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text('Something went wrong');
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Text("Loading");
+        }
+        for (var doc in snapshot.data.docs) {
+          if (doc["category"] == category && doc["isApproved"] == true) {
+            print(doc["amount"]);
+            sum += doc["amount"];
+          }
+        }
+        return Text(sum.toString());
+      });
+  print(sum);
+  return Category(category, amount: sum != null ? sum : 300.0);
 }
 
 // A widget that gets all the previous transactions by all the users.

@@ -14,10 +14,8 @@ class RequestsPage extends StatelessWidget {
     bool isMaster = true;
     String parentUserId;
     if (userDoc != null) {
-      isMaster = userDoc.data()["isMaster"];
-      isMaster
-          ? parentUserId = userDoc.id
-          : parentUserId = userDoc.data()["parent"];
+      isMaster = userDoc["isMaster"];
+      isMaster ? parentUserId = userDoc.id : parentUserId = userDoc["parent"];
     }
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
@@ -50,12 +48,8 @@ class RequestsPage extends StatelessWidget {
                   height: height * 0.03,
                 ),
                 Expanded(
-                  child: Row(
-                    children: [
-                      //TODO inject data to these charts from backend.
-                      CategoriesList(),
-                      PieChartView(),
-                    ],
+                  child: CategoriesListWithAmounts(
+                    parent: parentUserId,
                   ),
                 ),
               ],
@@ -65,7 +59,7 @@ class RequestsPage extends StatelessWidget {
         Positioned(
           bottom: 0,
           left: 0,
-          height: height * 0.58,
+          height: height * 0.6,
           width: width * 1,
           child: Container(
             decoration: BoxDecoration(
@@ -86,7 +80,6 @@ class RequestsPage extends StatelessWidget {
                 SizedBox(
                   height: 15,
                 ),
-                //TODO provide those requests cards using a ListViewBuilder and inject data from backend.
                 Expanded(
                     child: RequestedTransactions(
                   parent: parentUserId,
@@ -99,3 +92,21 @@ class RequestsPage extends StatelessWidget {
     );
   }
 }
+
+Future<List<Category>> categoriesList(String parent) async {
+  List<Category> list = [];
+  for (int i = 0; i < kCategoriesList.length; i++) {
+    int amount = await getAmount(parent, kCategoriesList[i]);
+    list.add(Category(kCategoriesList[i], amount: amount));
+  }
+  print(list);
+  return list;
+}
+
+List<Category> testingList = [
+  Category("test", amount: 800),
+  Category("test2", amount: 500),
+  Category("test3", amount: 100),
+  Category("test4", amount: 200),
+  Category("test5", amount: 300),
+];
