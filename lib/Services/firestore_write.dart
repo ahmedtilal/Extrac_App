@@ -25,7 +25,6 @@ class AddParentUser extends StatelessWidget {
     Future<void> addUser() async {
       await Provider.of<AuthenticationService>(context, listen: false)
           .signUp(email: email, password: password);
-      print('$name, $email, $password, $phoneNumber');
       String userID = FirebaseAuth.instance.currentUser.uid;
       CollectionReference users =
           FirebaseFirestore.instance.collection('users');
@@ -148,7 +147,7 @@ class AddTransaction {
           'isApproved': isApproved,
         })
         .then((value) => print("Transaction Added."))
-        .catchError((error) => print("Failed to add user: $error"));
+        .catchError((error) => print("Failed to add transaction: $error"));
   }
 
 //Function called when master user wants to approve a transaction.
